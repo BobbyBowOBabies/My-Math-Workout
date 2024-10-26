@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>แบบฝึกหัดการบวก ลบ และคูณเลข</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 20px;
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+        h1, h2 {
+            color: #333;
+        }
+        .input-group {
+            margin-bottom: 10px;
+        }
+        .input-group label {
+            display: block;
+            margin-bottom: 5px;
+        }
+        .results {
+            margin-top: 20px;
+            padding: 10px;
+            background-color: #e2e2e2;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+    <h1>แบบฝึกหัดการบวก ลบ และคูณเลข</h1>
+    <div class="input-group">
+        <label>เลือกโหมด:</label>
+        <select id="mode">
+            <option value="1">X + X (บวกเลขหลักเดียวที่เหมือนกัน)</option>
+            <option value="2">X + Y (บวกเลขหลักเดียวที่สุ่ม)</option>
+            <option value="3">XY + YZ (บวกเลข 2 หลัก)</option>
+            <option value="4">XYZ + YZW (บวกเลข 3 หลัก)</option>
+            <option value="5">WXYZ + UVWX (บวกเลข 4 หลัก)</option>
+            <option value="6">VWXYZ + TUVWX (บวกเลข 5 หลัก)</option>
+            <option value="7">X - Y (ลบเลขหลักเดียวที่ไม่เหมือนกัน)</option>
+            <option value="8">XY - YZ (ลบเลข 2 หลัก)</option>
+            <option value="9">XYZ - YZW (ลบเลข 3 หลัก)</option>
+            <option value="10">WXYZ - UVWX (ลบเลข 4 หลัก)</option>
+            <option value="11">VWXYZ - TUVWX (ลบเลข 5 หลัก)</option>
+            <option value="12">X × Y (คูณเลขหลักเดียว)</option>
+            <option value="13">XY × Z (2 หลักคูณ 1 หลัก)</option>
+            <option value="14">XYZ × Z (3 หลักคูณ 1 หลัก)</option>
+            <option value="15">XY × YZ (2 หลักคูณ 2 หลัก)</option>
+        </select>
+    </div>
+    <div class="input-group">
+        <label>จำนวนรอบ:</label>
+        <input type="number" id="round" value="10" min="1">
+    </div>
+    <div class="input-group">
+        <label>โหมดสอบ:</label>
+        <input type="checkbox" id="examMode" value="1"> ใช้โหมดสอบ (ไม่แสดงเฉลย)
+    </div>
+    <button id="startButton">เริ่มแบบฝึกหัด</button>
+    
+    <div id="questions" class="results"></div>
+    
+    <script>
+        let score = 0;
+        let miss = 0;
+        let round = 10;
+        let Exam_Mode = 0;
+        let questions = [];
+        let answers = [];
+        let totalTime = 0;
+
+        document.getElementById('startButton').onclick = function() {
+            // Reset scores and round
+            score = 0;
+            miss = 0;
+            round = parseInt(document.getElementById('round').value);
+            Exam_Mode = document.getElementById('examMode').checked ? 1 : 0;
+            let mode = parseInt(document.getElementById('mode').value);
+
+            let R1, R2, M1, M2;
+
+            // Set ranges for addition, subtraction, and multiplication modes
+            switch (mode) {
+                case 1: // บวกเลขหลักเดียวที่เหมือนกัน
+                    R1 = 9; M1 = 1; break; 
+                case 2: // บวกเลขหลักเดียวที่สุ่ม
+                    R1 = 9; M1 = 1; break;
+                case 3: // บวกเลข 2 หลัก
+                    R1 = 89; M1 = 10; break;
+                case 4: // บวกเลข 3 หลัก
+                    R1 = 899; M1 = 100; break;
+                case 5: // บวกเลข 4 หลัก
+                    R1 = 8999; M1 = 1000; break;
+                case 6: // บวกเลข 5 หลัก
+                    R1 = 89999; M1 = 10000; break;
+                case 7: // ลบเลขหลักเดียวที่ไม่เหมือนกัน
+                    R1 = 9; M1 = 1; break; 
+                case 8: // ลบเลข 2 หลัก
+                    R1 = 89; M1 = 10; break;
+                case 9: // ลบเลข 3 หลัก
+                    R1 = 899; M1 = 100; break;
+                case 10: // ลบเลข 4 หลัก
+                    R1 = 8999; M1 = 1000; break;
+                case 11: // ลบเลข 5 หลัก
+                    R1 = 89999; M1 = 10000; break;
+                case 12: // คูณเลขหลักเดียว
+                    R1 = 9; M1 = 1; break;
+                case 13: // 2 หลักคูณ 1 หลัก
+                    R1 = 89; M1 = 10; break;
+                case 14: // 3 หลักคูณ 1 หลัก
+                    R1 = 899; M1 = 100; break;
+                case 15: // 2 หลักคูณ 2 หลัก
+                    R1 = 89; M1 = 10; break;
+            }
+
+            const questionsDiv = document.getElementById('questions');
+            questionsDiv.innerHTML = ""; // Clear previous results
+            questions = []; // Clear questions
+            answers = []; // Clear answers
+            totalTime = 0;
+
+            // Prepare questions
+            for (let i = 0; i < round; i++) {
+                let F, L, CA;
+                if (mode === 1) { // บวกเลขหลักเดียวที่เหมือนกัน
+                    do {
+                        F = Math.floor(Math.random() * 9) + 1; // เลขหลักเดียวที่ไม่เป็น 0
+                        L = F; // ต้องเหมือนกัน
+                    } while (F === 0);
+                    CA = F + L;
+                } else if (mode === 2) { // บวกเลขหลักเดียวที่สุ่ม
+                    do {
+                        F = Math.floor(Math.random() * 9) + 1; // เลขหลักเดียวที่ไม่เป็น 0
+                        L = Math.floor(Math.random() * 9) + 1;
+                    } while (F === 0 || L === 0);
+                    CA = F + L;
+                } else if (mode >= 3 && mode <= 6) { // บวกเลข 2-5 หลัก
+                    F = Math.floor(Math.random() * R1) + M1;
+                    L = Math.floor(Math.random() * R1) + M1;
+                    CA = F + L;
+                } else if (mode >= 7 && mode <= 11) { // ลบเลข
+                    do {
+                        F = Math.floor(Math.random() * R1) + M1;
+                        L = Math.floor(Math.random() * R1) + M1;
+                    } while (mode === 7 && F === L); // ห้ามเป็นเลขเหมือนกันในโหมดลบหลักเดียว
+                    CA = F - L;
+                } else if (mode === 12) { // คูณเลขหลักเดียว
+                    do {
+                        F = Math.floor(Math.random() * 9) + 1; // เลขหลักเดียวที่ไม่เป็น 0
+                        L = Math.floor(Math.random() * 9) + 1; // เลขหลักเดียวที่ไม่เป็น 0
+                    } while (F === 0 || L === 0);
+                    CA = F * L;
+                } else if (mode === 13) { // 2 หลักคูณ 1 หลัก
+                    F = Math.floor(Math.random() * R1) + M1; // 2 หลัก
+                    L = Math.floor(Math.random() * 9) + 1; // 1 หลักที่ไม่เป็น 0
+                    CA = F * L;
+                } else if (mode === 14) { // 3 หลักคูณ 1 หลัก
+                    F = Math.floor(Math.random() * 899) + 100; // 3 หลัก
+                    L = Math.floor(Math.random() * 9) + 1; // 1 หลักที่ไม่เป็น 0
+                    CA = F * L;
+                } else if (mode === 15) { // 2 หลักคูณ 2 หลัก
+                    F = Math.floor(Math.random() * 89) + 10; // 2 หลัก
+                    L = Math.floor(Math.random() * 89) + 10; // 2 หลัก
+                    CA = F * L;
+                }
+
+                questions.push({ question: `${F} ${mode < 12 ? '+' : '×'} ${L}`, answer: CA });
+            }
+
+            let index = 0;
+            const askQuestion = () => {
+                if (index < questions.length) {
+                    const startTime = performance.now();
+                    const userAnswer = prompt(`คำถาม ${index + 1}: ${questions[index].question}`);
+                    const endTime = performance.now();
+                    const timeTaken = (endTime - startTime) / 1000; // Convert to seconds
+
+                    if (userAnswer === null) {
+                        return; // User canceled
+                    }
+
+                    // Check if input is a valid number
+                    const parsedAnswer = parseInt(userAnswer);
+                    if (isNaN(parsedAnswer)) {
+                        // If not a number, re-ask the same question
+                        alert("กรุณาป้อนตัวเลข");
+                        askQuestion(); // Re-ask the same question
+                        return; // Exit the current call to askQuestion
+                    }
+
+                    answers.push({
+                        question: questions[index].question,
+                        userAnswer: parsedAnswer,
+                        correctAnswer: questions[index].answer,
+                        time: timeTaken.toFixed(2),
+                    });
+
+                    if (parsedAnswer === questions[index].answer) {
+                        score++;
+                    } else {
+                        miss++;
+                        // Show answer only if incorrect in normal mode
+                        if (Exam_Mode === 0) {
+                            alert(`เฉลย: ${questions[index].question} = ${questions[index].answer}`);
+                        }
+                    }
+
+                    totalTime += timeTaken;
+
+                    index++;
+                    askQuestion(); // Ask the next question
+                } else {
+                    const overallTime = totalTime;
+                    const averageTimePerQuestion = totalTime / questions.length;
+
+                    const results = `
+                        <h2>คำถามและคำตอบทั้งหมด:</h2>
+                        ${answers.map(answer => `
+                            <p>${answer.question} = ${answer.userAnswer} (${answer.correctAnswer}) (เวลา: ${answer.time} วินาที, ${answer.userAnswer == answer.correctAnswer ? 'ถูกต้อง' : 'ผิด'})</p>
+                        `).join('')}
+                        <p>คะแนน: ${score} / ${round}</p>
+                        <p>เวลาที่ใช้ทั้งหมด: ${overallTime.toFixed(2)} วินาที</p>
+                        <p>เวลาต่อคำถามเฉลี่ย: ${averageTimePerQuestion.toFixed(2)} วินาที</p>
+                    `;
+                    questionsDiv.innerHTML = results;
+                }
+            };
+
+            askQuestion(); // Start asking questions
+        };
+    </script>
+</body>
+</html>
