@@ -149,7 +149,7 @@
                         L = Math.floor(Math.random() * R1) + M1;
                     } while (mode === 7 && F === L); // ห้ามเป็นเลขเหมือนกันในโหมดลบหลักเดียว
                     CA = F - L;
-                } else if (mode === 12) { // คูณเลขหลักเดียว
+		                   } else if (mode === 12) { // คูณเลขหลักเดียว
                     do {
                         F = Math.floor(Math.random() * 9) + 1; // เลขหลักเดียวที่ไม่เป็น 0
                         L = Math.floor(Math.random() * 9) + 1; // เลขหลักเดียวที่ไม่เป็น 0
@@ -169,7 +169,7 @@
                     CA = F * L;
                 }
 
-                questions.push({ question: `${F} ${mode < 12 ? '+' : '×'} ${L}`, answer: CA });
+ 		questions.push({ question: `${F} ${mode >= 7 && mode <= 11 ? '-' : (mode === 12 || mode >= 13 ? '×' : '+')} ${L} = ?`, answer: CA });
             }
 
             let index = 0;
